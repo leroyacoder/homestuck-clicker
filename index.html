@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Чей ход</title>
+<title>homestuck-clicker</title>
 <style>
 :root{
   --outer:#535353;
@@ -146,7 +146,7 @@ html.pip .clock{position:relative;width:100%;height:100%}
 <div class="mspa"><main class="panel">
 
   <div class="stage" id="stage">
-    <div class="parked"><p>Часы сейчас в окошке поверх всех окон. Не закрывай эту вкладку, иначе окошко закроется вместе с ней.</p></div>
+    <div class="parked"><p>Кликер сейчас в окошке поверх всех окон. Не закрывай эту вкладку, иначе окошко закроется вместе с ней.</p></div>
 
     <div class="clock" id="clock">
       <div class="plunger l" id="plL" aria-hidden="true"></div>
@@ -368,7 +368,7 @@ html.pip .clock{position:relative;width:100%;height:100%}
   }
   function setPopped(on) {
     document.body.classList.toggle('popped', on);
-    popBtn.textContent = on ? 'Вернуть часы сюда' : 'Открыть поверх всех окон';
+    popBtn.textContent = on ? 'Вернуть кликер сюда' : 'Открыть поверх всех окон';
   }
   async function popOut() {
     ensureAudio();
@@ -382,7 +382,7 @@ html.pip .clock{position:relative;width:100%;height:100%}
       return;
     }
     note.textContent = '';
-    w.document.title = 'Чей ход';
+    w.document.title = 'homestuck-clicker';
     document.querySelectorAll('style').forEach(n => w.document.head.appendChild(n.cloneNode(true)));
     w.document.documentElement.classList.add('pip');
     w.document.documentElement.lang = 'ru';
