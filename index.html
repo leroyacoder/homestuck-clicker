@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Чей ход</title>
+<style>
+:root{
+  --outer:#535353;
+  --frame:#C6C6C6;
+  --panel:#EEEEEE;
+  --link:#0715CD;
+  --face:#C0C0C0;
+  --hi:#FFFFFF;
+  --light:#DFDFDF;
+  --shade:#808080;
+  --dark:#000000;
+  --teal:#008080;
+  --dim:#3E4A4A;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--outer);
+  color:#000;
+  font-family:"Courier New",Courier,monospace;
+  font-weight:700;
+  min-height:100vh;
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:32px 12px 48px;
+}
+.mspa{width:100%;max-width:600px;background:var(--frame);padding:8px}
+.panel{background:var(--panel);padding:28px 24px 20px;display:flex;flex-direction:column;gap:18px}
+
+.stage{position:relative;width:100%;aspect-ratio:16/11}
+
+.clock{
+  container-type:size;
+  position:absolute;inset:0;
+  user-select:none;-webkit-user-select:none;
+  font-family:Tahoma,"MS Sans Serif",Verdana,sans-serif;font-weight:400;
+  -webkit-font-smoothing:none;
+}
+.plunger{
+  position:absolute;top:1.5cqh;height:20cqh;width:30cqw;z-index:1;
+  background:var(--face);
+  box-shadow:inset -1px -1px var(--dark),inset 1px 1px var(--hi),inset -2px -2px var(--shade),inset 2px 2px var(--light);
+  transition:top 60ms linear;
+}
+.plunger.l{left:10cqw}
+.plunger.r{right:10cqw}
+.plunger.down{
+  top:8cqh;
+  background:repeating-conic-gradient(var(--hi) 0 25%,var(--face) 0 50%) 0 0/2px 2px;
+  box-shadow:inset -1px -1px var(--hi),inset 1px 1px var(--dark),inset -2px -2px var(--light),inset 2px 2px var(--shade);
+}
+.case{
+  position:absolute;left:0;right:0;top:14cqh;bottom:0;z-index:2;
+  background:var(--face);
+  box-shadow:inset -1px -1px var(--dark),inset 1px 1px var(--light),inset -2px -2px var(--shade),inset 2px 2px var(--hi);
+  display:grid;grid-template-rows:1fr auto;gap:2.4cqh;
+  padding:3.4cqh 2.8cqw 2.8cqh;
+}
+.screens{display:grid;grid-template-columns:1fr 1fr;gap:2.8cqw;min-height:0}
+.screen{
+  position:relative;overflow:hidden;
+  background:var(--dim);
+  box-shadow:inset -1px -1px var(--hi),inset 1px 1px var(--shade),inset -2px -2px var(--light),inset 2px 2px var(--dark);
+}
+.screen.on{background:var(--teal)}
+.screen img{
+  position:absolute;left:3%;bottom:4%;width:94%;height:88%;
+  object-fit:contain;object-position:50% 100%;
+  pointer-events:none;
+}
+.screen img.px{image-rendering:pixelated}
+.zz{
+  position:absolute;left:56%;top:14%;width:36%;height:40%;
+  display:none;pointer-events:none;
+  font-family:"Courier New",Courier,monospace;font-weight:700;color:#fff;
+}
+.screen.snore .zz{display:block}
+.zz span{
+  position:absolute;left:0;bottom:0;opacity:0;line-height:1;
+  font-size:max(10px,3.4cqw);
+  text-shadow:1px 0 #000,-1px 0 #000,0 1px #000,0 -1px #000;
+  animation:zz 2.7s steps(9) infinite;
+}
+.zz span:nth-child(2){animation-delay:.9s;font-size:max(12px,4.3cqw)}
+.zz span:nth-child(3){animation-delay:1.8s;font-size:max(14px,5.2cqw)}
+@keyframes zz{
+  0%{transform:translate(0,0);opacity:0}
+  12%{opacity:1}
+  78%{opacity:1}
+  100%{transform:translate(9cqw,-13cqh);opacity:0}
+}
+@media (prefers-reduced-motion: reduce){
+  .zz span{animation:none;opacity:1}
+  .zz span:nth-child(2){transform:translate(4cqw,-6cqh)}
+  .zz span:nth-child(3){transform:translate(8cqw,-12cqh)}
+}
+
+.status{display:grid;grid-template-columns:1fr auto 1fr;gap:2.8cqw;align-items:stretch}
+.field{
+  box-shadow:inset -1px -1px var(--hi),inset 1px 1px var(--shade);
+  padding:0 max(4px,1.4cqw);
+  font-size:max(10px,3.1cqw);line-height:max(18px,6.4cqh);
+  white-space:nowrap;overflow:hidden;
+}
+.undo{
+  position:relative;z-index:6;
+  width:max(22px,7cqw);padding:0;border:0;border-radius:0;cursor:pointer;
+  background:var(--face);color:#000;
+  box-shadow:inset -1px -1px var(--dark),inset 1px 1px var(--hi),inset -2px -2px var(--shade),inset 2px 2px var(--light);
+  display:grid;place-items:center;
+}
+.undo svg{width:max(11px,2.6cqw);height:auto;display:block}
+.undo:active:not(:disabled){
+  box-shadow:inset -1px -1px var(--hi),inset 1px 1px var(--dark),inset -2px -2px var(--light),inset 2px 2px var(--shade);
+}
+.undo:active:not(:disabled) svg{transform:translate(1px,1px)}
+.undo:disabled{color:var(--shade);cursor:default}
+.undo:disabled svg{filter:drop-shadow(1px 1px 0 var(--hi))}
+.undo:focus{outline:none}
+.undo:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+
+.hit{
+  position:absolute;top:0;bottom:0;width:50%;z-index:5;
+  background:transparent;border:0;margin:0;padding:0;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.hit.l{left:0}
+.hit.r{right:0}
+.hit[aria-pressed="true"]{cursor:default}
+.hit:focus{outline:none}
+.hit:focus-visible{outline:1px dotted #000;outline-offset:-4px}
+
+.parked{
+  display:none;position:absolute;inset:0;
+  border:1px dashed var(--shade);background:var(--panel);
+  align-items:center;justify-content:center;padding:24px;
+  text-align:center;font-size:14px;line-height:1.5;
+}
+.parked p{margin:0;max-width:36ch}
+body.popped .parked{display:flex}
+
+.narr{margin:0;text-align:center;font-size:14px;line-height:1.5}
+.cmd{margin:6px 0 0;font-size:21px;line-height:1.3}
+.link{
+  font:inherit;color:var(--link);background:none;border:0;padding:0;margin:0;
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer;
+}
+.link:hover{color:#000}
+.link:focus{outline:none}
+.link:focus-visible{outline:1px dotted #000;outline-offset:2px}
+.link:disabled{color:var(--shade);text-decoration:none;cursor:default}
+.note{margin:-8px 0 0;font-size:13px;line-height:1.5;color:#3a3a3a}
+.note:empty{display:none}
+.foot{margin:0;font-size:12px;line-height:1.5;color:#000}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+html.pip,html.pip body{height:100%}
+html.pip body{display:block;min-height:0;padding:0;overflow:hidden;background:var(--outer)}
+html.pip .clock{position:relative;width:100%;height:100%}
+</style>
+</head>
+<body>
+<div class="mspa"><main class="panel">
+
+  <div class="stage" id="stage">
+    <div class="parked"><p>Часы сейчас в окошке поверх всех окон. Не закрывай эту вкладку, иначе окошко закроется вместе с ней.</p></div>
+
+    <div class="clock" id="clock">
+      <div class="plunger l" id="plL" aria-hidden="true"></div>
+      <div class="plunger r" id="plR" aria-hidden="true"></div>
+      <div class="case">
+        <div class="screens" aria-hidden="true">
+          <div class="screen" id="scrL"><div class="zz"><span>z</span><span>z</span><span>z</span></div></div>
+          <div class="screen" id="scrR"></div>
+        </div>
+        <div class="status">
+          <div class="field" id="cntL"></div>
+          <button class="undo" id="undo" type="button" aria-label="Отменить последнее нажатие" title="Отменить последнее нажатие">
+            <svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M2 0h1v1H2zM1 1h2v1H1zM0 2h7v1H0zM1 3h2v1H1zM7 3h1v1H7zM2 4h1v1H2zM8 4h1v3H8zM7 7h1v1H7zM3 8h4v1H3z"/></svg>
+          </button>
+          <div class="field" id="cntR"></div>
+        </div>
+      </div>
+      <button class="hit l" id="hitL" type="button" aria-label="Читает скрепка"></button>
+      <button class="hit r" id="hitR" type="button" aria-label="Читает волшебник"></button>
+      <div class="sr" id="live" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <p class="narr">Пробел передаёт ход, Z отменяет последнее нажатие.</p>
+
+  <p class="cmd">&gt; <button class="link" id="pop" type="button">Открыть поверх всех окон</button></p>
+  <p class="note" id="note"></p>
+  <p class="foot"><button class="link" id="sound" type="button"></button> | <button class="link" id="reset" type="button">Обнулить страницы</button></p>
+
+</main></div>
+
+<script>
+(() => {
+  const KEY = 'chei-hod-v1';
+  const DEF = { turn: 'L', counts: { L: 0, R: 0 }, sound: 'pixel' };
+  const SIDES = ['L', 'R'];
+  const SLEEP_INTRO_MS = 3200;
+  const FILES = { tap: 'img/tap.png', yawn: 'img/yawn.png', bow: 'img/bow.png', sleep_intro: 'img/sleep_intro.png', sleep_loop: 'img/sleep_loop.png' };
+  const other = s => (s === 'L' ? 'R' : 'L');
+
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (s) return {
+        turn: s.turn === 'R' ? 'R' : 'L',
+        counts: { L: Math.max(0, +(s.counts && s.counts.L) || 0), R: Math.max(0, +(s.counts && s.counts.R) || 0) },
+        sound: s.sound === false || s.sound === 'off' ? 'off' : 'pixel'
+      };
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEF));
+  }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+  let state = load();
+  const history = [];
+
+  const $ = id => document.getElementById(id);
+  const clock = $('clock'), stage = $('stage');
+  const plunger = { L: $('plL'), R: $('plR') };
+  const screen = { L: $('scrL'), R: $('scrR') };
+  const count = { L: $('cntL'), R: $('cntR') };
+  const hit = { L: $('hitL'), R: $('hitR') };
+  const undoBtn = $('undo'), live = $('live');
+  const popBtn = $('pop'), note = $('note'), soundBtn = $('sound'), resetBtn = $('reset');
+
+  const framed = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
+  const FRAMED_NOTE = 'Сейчас страница открыта внутри другого окна, поэтому картинки и окошко поверх окон тут не работают. Открой её в отдельной вкладке браузера.';
+  if (framed) note.textContent = FRAMED_NOTE;
+
+  const SRC = {};
+  for (const k in FILES) SRC[k] = FILES[k].startsWith('data:') ? FILES[k] : new URL(FILES[k], location.href).href;
+  const canFetch = k => SRC[k].startsWith('data:') || location.protocol !== 'file:';
+  const blobs = {};
+  let bust = 0;
+  const ready = Promise.all(Object.keys(FILES).map(k => canFetch(k)
+    ? fetch(SRC[k]).then(r => (r.ok ? r.blob() : null)).then(b => { if (b) blobs[k] = b; }).catch(() => {})
+    : null));
+
+  function imagesFailed() {
+    note.textContent = framed ? FRAMED_NOTE : 'Картинки не загрузились. Открой страницу в отдельной вкладке браузера.';
+  }
+
+  const shown = { L: null, R: null };
+  function show(side, key) {
+    const slot = screen[side];
+    const img = slot.ownerDocument.createElement('img');
+    img.alt = ''; img.draggable = false;
+    if (key === 'tap') img.className = 'px';
+    let url = null;
+    if (blobs[key]) { try { url = URL.createObjectURL(blobs[key]); } catch (e) { url = null; } }
+    const plain = SRC[key].startsWith('data:') ? SRC[key] : SRC[key] + '?r=' + (++bust);
+    img.addEventListener('error', function onErr() {
+      if (img.src.startsWith('blob:')) { img.src = plain; return; }
+      img.removeEventListener('error', onErr);
+      img.remove();
+      imagesFailed();
+    });
+    img.src = url || plain;
+    const prev = slot.querySelector('img');
+    if (prev) prev.replaceWith(img); else slot.prepend(img);
+    const old = shown[side];
+    if (old && old.url) setTimeout(() => URL.revokeObjectURL(old.url), 3000);
+    shown[side] = { key, url };
+  }
+
+  let sleepTimer = null;
+  function stopSleepTimer() {
+    if (sleepTimer) { try { sleepTimer.win.clearTimeout(sleepTimer.id); } catch (e) {} sleepTimer = null; }
+  }
+  let sceneTurn = null;
+  function scene(force) {
+    if (!force && sceneTurn === state.turn) return;
+    sceneTurn = state.turn;
+    stopSleepTimer();
+    screen.L.classList.remove('snore');
+    if (state.turn === 'L') {
+      show('L', 'tap');
+      show('R', 'yawn');
+    } else {
+      show('L', 'sleep_intro');
+      show('R', 'bow');
+      const win = screen.L.ownerDocument.defaultView || window;
+      sleepTimer = { win, id: win.setTimeout(() => {
+        sleepTimer = null;
+        if (state.turn !== 'R') return;
+        show('L', 'sleep_loop');
+        screen.L.classList.add('snore');
+      }, SLEEP_INTRO_MS) };
+    }
+  }
+
+  function render() {
+    for (const s of SIDES) {
+      const on = state.turn === s;
+      plunger[s].classList.toggle('down', on);
+      screen[s].classList.toggle('on', on);
+      hit[s].setAttribute('aria-pressed', on ? 'true' : 'false');
+      count[s].textContent = state.counts[s] + ' стр.';
+    }
+    undoBtn.disabled = history.length === 0;
+    soundBtn.textContent = state.sound === 'off' ? 'Включить звук' : 'Выключить звук';
+    scene();
+  }
+
+  let ac = null;
+  function ensureAudio() {
+    if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } }
+    if (ac && ac.state === 'suspended') ac.resume().catch(() => {});
+  }
+  function tock(side) {
+    if (state.sound === 'off') return;
+    ensureAudio();
+    if (!ac) return;
+    try {
+      const t = ac.currentTime + 0.01;
+      const notes = side === 'L' ? [988, 1318.5] : [659.3, 880];
+      const out = ac.createGain(); out.gain.value = 0.22;
+      const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.3;
+      lp.connect(out); out.connect(ac.destination);
+      notes.forEach((f, i) => {
+        const s = t + i * 0.065;
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'square'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, s);
+        g.gain.exponentialRampToValueAtTime(0.6, s + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.0001, s + 0.003 + (i ? 0.14 : 0.05));
+        o.connect(g); g.connect(lp); o.start(s); o.stop(s + 0.2);
+      });
+    } catch (e) {}
+  }
+
+  const snapshot = () => ({ turn: state.turn, counts: { L: state.counts.L, R: state.counts.R } });
+  function remember() { history.push(snapshot()); if (history.length > 60) history.shift(); }
+  const say = () => { live.textContent = state.turn === 'L' ? 'Читает скрепка' : 'Читает волшебник'; };
+
+  function press(side) {
+    if (side === state.turn) return;
+    remember();
+    state.counts[state.turn] += 1;
+    state.turn = side;
+    tock(side);
+    render(); save(); say();
+  }
+  function undo() {
+    const prev = history.pop();
+    if (!prev) return;
+    const changed = prev.turn !== state.turn;
+    state.turn = prev.turn;
+    state.counts = prev.counts;
+    if (changed) tock(state.turn);
+    render(); save(); say();
+  }
+
+  hit.L.addEventListener('click', () => press('L'));
+  hit.R.addEventListener('click', () => press('R'));
+  undoBtn.addEventListener('click', undo);
+
+  function onKey(e) {
+    const t = e.target;
+    if (t && t.closest && t.closest('button, input, textarea')) return;
+    if (e.code === 'Space') { e.preventDefault(); press(other(state.turn)); }
+    else if (e.code === 'KeyZ' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); undo(); }
+  }
+  document.addEventListener('keydown', onKey);
+
+  soundBtn.addEventListener('click', () => {
+    state.sound = state.sound === 'off' ? 'pixel' : 'off';
+    save(); render();
+    tock(state.turn);
+  });
+  resetBtn.addEventListener('click', () => {
+    if (!state.counts.L && !state.counts.R) return;
+    remember();
+    state.counts = { L: 0, R: 0 };
+    render(); save();
+  });
+
+  const pipOK = 'documentPictureInPicture' in window;
+  if (!pipOK) {
+    popBtn.disabled = true;
+    note.textContent = 'В этом браузере окошко поверх окон не открывается. Оно работает в Chrome, Edge, Opera, Arc и Firefox.';
+  }
+  function setPopped(on) {
+    document.body.classList.toggle('popped', on);
+    popBtn.textContent = on ? 'Вернуть часы сюда' : 'Открыть поверх всех окон';
+  }
+  async function popOut() {
+    ensureAudio();
+    if (!pipOK) return;
+    if (documentPictureInPicture.window) { documentPictureInPicture.window.close(); return; }
+    let w;
+    try {
+      w = await documentPictureInPicture.requestWindow({ width: 300, height: 210 });
+    } catch (err) {
+      note.textContent = framed ? FRAMED_NOTE : 'Окошко не открылось. Обнови страницу и нажми ещё раз.';
+      return;
+    }
+    note.textContent = '';
+    w.document.title = 'Чей ход';
+    document.querySelectorAll('style').forEach(n => w.document.head.appendChild(n.cloneNode(true)));
+    w.document.documentElement.classList.add('pip');
+    w.document.documentElement.lang = 'ru';
+    w.document.body.appendChild(clock);
+    w.addEventListener('keydown', onKey);
+    setPopped(true);
+    w.addEventListener('pagehide', () => {
+      stage.appendChild(clock);
+      setPopped(false);
+    });
+  }
+  popBtn.addEventListener('click', popOut);
+
+  render();
+  ready.then(() => { sceneTurn = null; stopSleepTimer(); scene(true); });
+})();
+</script>
+</body>
+</html>
