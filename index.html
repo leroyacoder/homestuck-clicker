@@ -26,9 +26,10 @@ body{
   color:#000;
   font-family:"Courier New",Courier,monospace;
   font-weight:700;
-  min-height:100vh;
   display:flex;justify-content:center;align-items:flex-start;
-  padding:32px 12px 48px;
+  padding-block:32px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
 }
 .mspa{width:100%;max-width:600px;background:var(--frame);padding:8px}
 .panel{background:var(--panel);padding:28px 24px 20px;display:flex;flex-direction:column;gap:18px}
@@ -237,7 +238,7 @@ html.pip .clock{position:relative;width:100%;height:100%}
   const popBtn = $('pop'), note = $('note'), soundBtn = $('sound'), resetBtn = $('reset');
 
   const framed = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
-  const FRAMED_NOTE = 'Сейчас страница открыта внутри другого окна, поэтому картинки и окошко поверх окон тут не работают. Открой её в отдельной вкладке браузера.';
+  const FRAMED_NOTE = 'Окошко поверх окон отсюда не откроется. Для него открой страницу в отдельной вкладке браузера.';
   if (framed) note.textContent = FRAMED_NOTE;
 
   const SRC = {};
@@ -250,7 +251,7 @@ html.pip .clock{position:relative;width:100%;height:100%}
     : null));
 
   function imagesFailed() {
-    note.textContent = framed ? FRAMED_NOTE : 'Картинки не загрузились. Открой страницу в отдельной вкладке браузера.';
+    note.textContent = 'Картинки здесь не загрузились. Открой страницу в отдельной вкладке браузера.';
   }
 
   const shown = { L: null, R: null };
