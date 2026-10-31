@@ -171,7 +171,7 @@ body{
   border:1px solid var(--shade);box-shadow:1px 1px var(--hi),inset 1px 1px var(--hi);
   display:flex;flex-direction:column;gap:max(4px,1.8cqh);
 }
-.group legend{padding:0 4px;margin-left:2px;line-height:1}
+.group legend{padding:0 4px;margin-left:2px;line-height:1;background:var(--face);position:relative}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .spin{
   display:inline-flex;align-items:stretch;background:#fff;padding:2px;
@@ -433,8 +433,8 @@ html.pip-both .win>.titlebar{display:flex}
   <p class="narr" data-for="timer" hidden>Время ставится до включения. После включения его уже не поменять.</p>
 
   <div class="cmds" id="cmds">
-    <p class="cmd">&gt; <button class="link" type="button" data-pop="clicker">Кликер поверх всех окон</button></p>
-    <p class="cmd">&gt; <button class="link" type="button" data-pop="timer">Таймер поверх всех окон</button></p>
+    <p class="cmd" data-tab="clicker">&gt; <button class="link" type="button" data-pop="clicker">Кликер поверх всех окон</button></p>
+    <p class="cmd" data-tab="timer">&gt; <button class="link" type="button" data-pop="timer">Таймер поверх всех окон</button></p>
     <p class="cmd">&gt; <button class="link" type="button" data-pop="both">Кликер и таймер поверх всех окон</button></p>
     <p class="cmd" hidden>&gt; <button class="link" type="button" id="popBack">Вернуть всё сюда</button></p>
   </div>
@@ -670,6 +670,7 @@ html.pip-both .win>.titlebar{display:flex}
       TABS[k].pane.hidden = !on;
     }
     document.querySelectorAll('[data-for]').forEach(el => { el.hidden = el.dataset.for !== name; });
+    syncCmds();
     if (focus) TABS[name].tab.focus();
     try { localStorage.setItem('hc-tab', name); } catch (e) {}
   }
@@ -951,7 +952,10 @@ html.pip-both .win>.titlebar{display:flex}
   const cmdBtns = Array.from(document.querySelectorAll('[data-pop]'));
   const backBtn = $('popBack');
   function syncCmds() {
-    cmdBtns.forEach(b => { b.closest('p').hidden = b.dataset.pop === pipMode; });
+    cmdBtns.forEach(b => {
+      const row = b.closest('p');
+      row.hidden = b.dataset.pop === pipMode || (!!row.dataset.tab && row.dataset.tab !== activeTab);
+    });
     backBtn.closest('p').hidden = !pipMode;
   }
   function restore() {
