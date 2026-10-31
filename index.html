@@ -51,7 +51,6 @@ body{
   border:0;border-radius:3px 3px 0 0;cursor:pointer;
   margin:3px 0 0;padding:6px 14px 5px;
   box-shadow:inset 1px 1px var(--hi),inset -1px 0 var(--dark),inset -2px 0 var(--shade);
-  -webkit-font-smoothing:none;
 }
 .tab[aria-selected="true"]{margin:0 -2px -2px;padding:8px 16px 7px;position:relative;z-index:2}
 .tab:focus{outline:none}
@@ -81,7 +80,6 @@ body{
   position:relative;flex:1 1 auto;min-height:0;
   user-select:none;-webkit-user-select:none;
   font-family:var(--ui);font-weight:400;
-  -webkit-font-smoothing:none;
 }
 .plunger{
   position:absolute;top:1.5cqh;height:20cqh;width:30cqw;z-index:1;
@@ -122,6 +120,7 @@ body{
   box-shadow:inset -1px -1px var(--hi),inset 1px 1px var(--shade);
   padding:0 max(4px,1.4cqw);
   font-size:max(10px,3.1cqw);line-height:max(18px,6.4cqh);
+  font-size:round(max(10px,3.1cqw),1px);line-height:round(max(18px,6.4cqh),1px);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 }
 .undo{
@@ -164,7 +163,7 @@ body{
   padding:max(7px,3.6cqh) max(8px,3cqw);
   display:flex;flex-direction:column;gap:max(5px,2.6cqh);
   font:400 max(11px,min(3.2cqw,5.2cqh))/1.25 var(--ui);
-  -webkit-font-smoothing:none;
+  font-size:round(max(11px,min(3.2cqw,5.2cqh)),1px);
 }
 .group{
   margin:0;min-width:0;
@@ -224,7 +223,7 @@ body{
 
 .t-run{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto}
 .t-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
-.t-phase{font:700 max(14px,min(5.6cqw,9cqh))/1 var(--mspa);white-space:nowrap}
+.t-phase{font:700 max(14px,min(5.6cqw,9cqh))/1 var(--mspa);font-size:round(max(14px,min(5.6cqw,9cqh)),1px);white-space:nowrap}
 .t-round{white-space:nowrap}
 .lcd{
   background:#000;min-height:0;display:flex;align-items:center;justify-content:center;
@@ -247,13 +246,13 @@ body{
 .t-foot .field{display:flex;align-items:center;line-height:1.2}
 .t-lock{align-items:center;justify-content:center;text-align:center}
 .t-lock p{margin:0}
-.t-big{font:700 max(14px,min(5.4cqw,9cqh))/1.1 var(--mspa)}
+.t-big{font:700 max(14px,min(5.4cqw,9cqh))/1.1 var(--mspa);font-size:round(max(14px,min(5.4cqw,9cqh)),1px)}
 .t-lock .field{align-self:center;padding:0 1em}
 
 .veil{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:4px;overflow:auto}
 .dlg{
   width:min(100%,360px);background:var(--face);padding:3px;
-  font:400 12px/1.3 var(--ui);-webkit-font-smoothing:none;
+  font:400 12px/1.3 var(--ui);
   box-shadow:inset -1px -1px var(--dark),inset 1px 1px var(--light),inset -2px -2px var(--shade),inset 2px 2px var(--hi);
 }
 .dlg .titlebar{display:flex}
@@ -298,12 +297,12 @@ body{
 }
 .drama.inv{background:var(--seg-on);color:#000;--on:#000;--off:var(--seg-flash-off)}
 .drama p{margin:0;line-height:1.1;max-width:100%}
-.d-top{font-size:max(13px,4.8vmin)}
+.d-top{font-size:max(13px,4.8vmin);font-size:round(max(13px,4.8vmin),1px)}
 .d-num{height:min(48vh,58vw);display:flex;justify-content:center}
 .d-num svg{height:100%;width:auto;display:block}
 .d-num .on{fill:var(--on)}
 .d-num .off{fill:var(--off)}
-.d-next{font-size:max(15px,6.2vmin)}
+.d-next{font-size:max(15px,6.2vmin);font-size:round(max(15px,6.2vmin),1px)}
 .drama.arrive .d-top,.drama.arrive .d-num{display:none}
 .drama.arrive .d-next{font-size:max(24px,11vmin);animation:blink .5s steps(1) infinite}
 @keyframes blink{50%{visibility:hidden}}
